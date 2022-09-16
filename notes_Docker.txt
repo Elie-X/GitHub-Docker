@@ -1,0 +1,24 @@
+Docker :
+-Platform for building, running and shipping applications
+-Makes sure the application works on every machine
+
+Container :
+An isolated environment for running an application
+
+Virtual Machine :
+An abstraction of a machine with physical hardware
+
+Benefits of Container :
+-Allow running mulitple apps in isolation
+-Are lightweight
+-Use OS of the host
+-Start quickly
+-Need less hardware resources
+
+docker image ls : Check images on OS
+docker build -t hello-docker . : Build an image with the name hello-docker
+docker pull ubuntu : Pull the ubuntu image on your system
+docker run ubuntu : Gonna run a container with this image if present or else will download it and then start it
+docker ps : List of running containers
+docker ps -a : Shows list of all containers, including inactive ones
+docker run -it ubuntu : Run the ubuntu container interactively (with the root prompt)
