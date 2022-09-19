@@ -11,11 +11,12 @@ file_list_column = [
     [
         sg.Text("Dossier à synchroniser"),
         sg.In(size=(25,1), enable_events=True, key="-FOLDER-"), #Input avec les events enabled et la key pour s'y référer par la suite
-        sg.FolderBrowse(), #Bouton de browsing
+        sg.FolderBrowse(button_text="Naviguer"), #Bouton de browsing
+        sg.Button("Ajouter", key="-ADD FOLDER-")
     ],
     [
         sg.Listbox(
-            values=[], enable_events=True, size=(53,20), key="-FOLDER LIST-"  #Pas encore de valeurs présentes
+            values=[], enable_events=True, size=(63,20), key="-FOLDER LIST-"  #Pas encore de valeurs présentes
         )
     ],
 ]
@@ -42,17 +43,20 @@ while True:
     event, values = window.read()
     if event == "Exit" or event == sg.WIN_CLOSED:
         break
-    if event == "-FOLDER-":
+    if event == "-ADD FOLDER-":
         #Si on a un nouveau folder, on veut l'ajouter à la liste de folders présente
         #et display à nouveau celle-ci updated.
-        folder = values["-FOLDER-"]
+        folder = os.path.abspath(values["-FOLDER-"])
         #On s'assure que le folder n'est pas déjà dans notre liste et qu'il est bien
         #un dossier.
         if folder not in folder_list and os.path.isdir(folder):
             folder_list.append(folder)
         updateFolderList()
     elif event == "-FOLDER LIST-":
-        selected_folder = values["-FOLDER LIST-"][0]
+        try:
+            selected_folder = values["-FOLDER LIST-"][0]
+        except:
+            pass
     elif event == "-STOP SYNC-":
         print("Stop Sync!")
     elif event == "-SYNC NOW-":
