@@ -47,6 +47,7 @@ while True:
         break
     if event == "-FOLDER-": #if key of the event = -FOLDER-
         folder = values["-FOLDER-"] #Retourne le path de l'input avec la key -FOLDER-
+        print(type(folder))
         try:
             file_list = os.listdir(folder)
         except:
