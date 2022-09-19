@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-"""
 with open('testfile.txt', 'r') as f:  # On ouvre le fichier en mode Read-Only et on lit ce qui s'y trouve.
     data = f.read()
     print(data)
@@ -16,7 +15,7 @@ with os.scandir("bidonDir") as entries:  # Scandir retourne un itérateur qui po
         # la fin de la boucle
         print(entry.name)
 
-entries = pathlib.Path("bidonDir")  # À regarder toutes les fonctions disponibles dans pathlib car il semble être le
+entries = Path("bidonDir")  # À regarder toutes les fonctions disponibles dans pathlib car il semble être le
 # plus efficace
 # Il existe aussi shutil que je pourrais utiliser (https://docs.python.org/3/library/shutil.html)
 for entry in entries.iterdir():
@@ -26,7 +25,7 @@ basepath = "bidonDir/"
 for entry in os.listdir(basepath):
     if os.path.isfile(os.path.join(basepath, entry)):
         print(entry)
-"""
+
 # https://docs.python.org/3/library/pathlib.html
 basedir = Path("./bidonDir")
 print([x for x in basedir.iterdir() if x.is_dir()])
