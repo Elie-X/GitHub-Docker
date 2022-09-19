@@ -9,14 +9,34 @@ file_list_column = [
     ],
     [
         sg.Listbox(
-            values=[], enable_events=True, size=(40,20), key="-FILE LIST-"  #Pas encore de valeurs présentes
+            values=[], enable_events=True, size=(53,20), key="-FILE LIST-"  #Pas encore de valeurs présentes
         )
     ],
 ]
 
 button_column = [
-    sg.Button("Arrêter la synchronisation"),
-    sg.Button("Synchroniser maintenant"),
-    sg.Button("Enlever ce dossier")
+    [sg.Button("Arrêter la synchronisation")],
+    [sg.Button("Synchroniser maintenant")],
+    [sg.Button("Enlever ce dossier")],
 ]
 
+
+
+layout = [
+    [
+        sg.Column(file_list_column),
+        sg.VSeparator(), #Séparer les deux colonnes
+        sg.Column(button_column),
+    ]
+]
+
+window = sg.Window("ElieDrive", layout)
+
+while True:
+    event, values = window.read()
+    if event == "Exit" or event == sg.WIN_CLOSED:
+        break
+    else:
+        pass
+
+window.close()
