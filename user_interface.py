@@ -1,7 +1,11 @@
 import PySimpleGUI as sg
 import os.path
 
+def updateFolderList():
+    window["-FOLDER LIST-"].update(folder_list)
+
 folder_list = []
+selected_folder = ""
 
 file_list_column = [
     [
@@ -46,13 +50,20 @@ while True:
         #un dossier.
         if folder not in folder_list and os.path.isdir(folder):
             folder_list.append(folder)
-        window["-FOLDER LIST-"].update(folder_list)
+        updateFolderList()
+    elif event == "-FOLDER LIST-":
+        selected_folder = values["-FOLDER LIST-"][0]
     elif event == "-STOP SYNC-":
         print("Stop Sync!")
     elif event == "-SYNC NOW-":
         print("Sync now!")
     elif event == "-REMOVE FOLDER-":
-        print("Remove folder")
+        print("Remove folder " + selected_folder)
+        try:
+            folder_list.remove(selected_folder)
+            updateFolderList()
+        except:
+            pass
     else:
         pass
 
