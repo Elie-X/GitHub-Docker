@@ -1,9 +1,17 @@
 # folder_copy.py
+import os
 from shutil  import copytree
 import datetime
 
-#def syncNow
+
 #S'assurer qu'on reçoit une Liste de strings suivi d'un destination path
+def syncNow(str_list, path):
+    #If not a list, will get an exception anyways
+    for str in str_list:
+        if not os.path.exists(str):
+            raise ValueError("One of the paths in the sync list does not exist.")
+    if not os.path.exists(path):
+        raise ValueError("Destination path does not exist.")
 
 
 #https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior

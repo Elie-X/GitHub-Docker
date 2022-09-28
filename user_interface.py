@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 import os.path
+from folder_copy import syncNow
 
 def updateFolderList():
     window["-FOLDER LIST-"].update(folder_list)
@@ -26,7 +27,6 @@ button_column = [
     [sg.Button("Synchroniser maintenant", key="-SYNC NOW-")],
     [sg.Button("Enlever ce dossier", key="-REMOVE FOLDER-")],
 ]
-
 
 
 layout = [
