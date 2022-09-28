@@ -37,7 +37,7 @@ layout = [
     ]
 ]
 
-window = sg.Window("ElieDrive", layout)
+window = sg.Window("ElieDrive", layout, icon="eliedrive_icon.ico")
 
 while True:
     event, values = window.read()
