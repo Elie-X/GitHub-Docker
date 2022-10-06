@@ -1,3 +1,6 @@
+import multiprocessing
+from time import sleep
+
 import PySimpleGUI as sg
 import os.path
 
@@ -65,7 +68,6 @@ def main(q):
         if event == "Exit" or event == sg.WIN_CLOSED:
             if (isinstance(sync_thread, Process)):
                 sync_thread.terminate()
-                print("sync_thread terminated")
             break
         if event == "-ADD FOLDER-":
             #Si on a un nouveau folder, on veut l'ajouter à la liste de folders présente
@@ -90,7 +92,8 @@ def main(q):
         elif event == "-SYNC NOW-":
             print("Sync now!")
             q = folder_list
-            sync_thread = Process(target=syncServer, args=(q,)).start()
+            sync_thread = Process(target=syncServer, args=(q,)) #If you use start fct on the same statement, sync_thread won't be instance of Process. Why?
+            sync_thread.start()
         elif event == "-REMOVE FOLDER-":
             print("Remove folder " + selected_folder)
             try:
@@ -107,3 +110,4 @@ if __name__ == '__main__':
     q.put(None)
     main_thread = Process(target=main, args=(q,))
     main_thread.start()
+    print(isinstance(main_thread, Process))
