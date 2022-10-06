@@ -2,23 +2,25 @@ import PySimpleGUI as sg
 import os.path
 
 import schedule
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 from folder_copy import syncNow
 
-def syncServer():
+def syncServer(q):
+    q = q
     sync_state = True
     print("sync activated")
-    schedule.every(5).seconds.do(printTime) #Needs callable arg
+    schedule.every(5).seconds.do(printTime, q=q) #Needs callable arg
     while sync_state:
         schedule.run_pending()
 
-def printTime():
-    print("time")
+def printTime(q):
+    print(q)
 
-def main():
-
+#On doit avoir une fonction main à cause du Threading qui fait qu'on peut pas call soi-même
+def main(q):
     folder_list = []
     selected_folder = ""
+    sync_thread = None
 
 
     file_list_column = [
@@ -61,6 +63,9 @@ def main():
     while True:
         event, values = window.read()
         if event == "Exit" or event == sg.WIN_CLOSED:
+            if (isinstance(sync_thread, Process)):
+                sync_thread.terminate()
+                print("sync_thread terminated")
             break
         if event == "-ADD FOLDER-":
             #Si on a un nouveau folder, on veut l'ajouter à la liste de folders présente
@@ -84,7 +89,8 @@ def main():
             #sg.popup_menu("MENU")
         elif event == "-SYNC NOW-":
             print("Sync now!")
-            Process(target=syncServer).start()
+            q = folder_list
+            sync_thread = Process(target=syncServer, args=(q,)).start()
         elif event == "-REMOVE FOLDER-":
             print("Remove folder " + selected_folder)
             try:
@@ -94,8 +100,10 @@ def main():
                 pass
         else:
             pass
-
     window.close()
 
 if __name__ == '__main__':
-    Process(target=main).start()
+    q = Queue()
+    q.put(None)
+    main_thread = Process(target=main, args=(q,))
+    main_thread.start()
