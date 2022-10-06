@@ -7,6 +7,7 @@ def updateFolderList():
 
 folder_list = []
 selected_folder = ""
+sync_state = True
 
 file_list_column = [
     [
@@ -59,8 +60,13 @@ while True:
             pass
     elif event == "-STOP SYNC-":
         print("Stop Sync!")
+        sync_state = False
+        #sg.popup("Hello!")
+        #sg.popup_ok("OK?")
+        #sg.popup_menu("MENU")
     elif event == "-SYNC NOW-":
         print("Sync now!")
+        sync_state = True
     elif event == "-REMOVE FOLDER-":
         print("Remove folder " + selected_folder)
         try:

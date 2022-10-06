@@ -13,7 +13,7 @@ def syncNow(str_list, path):
     if not os.path.exists(path):
         raise ValueError("Destination path does not exist.")
 
-
+"""
 #https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
 ct = datetime.datetime.now()
 formatted_ct = ct.strftime("%Y-%m-%d %H-%M-%S.%f")
@@ -26,3 +26,4 @@ try :
 except Exception as e:
     print(e)
     pass
+"""
