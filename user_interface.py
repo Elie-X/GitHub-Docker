@@ -139,21 +139,20 @@ def main(q):
             except:
                 pass
         elif event == "-STOP SYNC-":
-            print("Stop Sync!")
+            print("Arrêt de la synchronisation périodique.")
             if (isinstance(sync_thread, Process)):
                 sync_thread.terminate()
             #sg.popup("Hello!")
             #sg.popup_ok("OK?")
             #sg.popup_menu("MENU")
         elif event == "-SYNC NOW-":
-            print("Sync now!")
+            print("Début de la synchronisation périodique.")
             updateQueue(q, folder_list)
             if (isinstance(sync_thread, Process)):
                 sync_thread.terminate()
             sync_thread = Process(target=syncServer, args=(q,)) #If you use start fct on the same statement, sync_thread won't be instance of Process. Why?
             sync_thread.start()
         elif event == "-REMOVE FOLDER-":
-            print("Remove folder " + selected_folder)
             try:
                 folder_list.remove(selected_folder)
                 window["-FOLDER LIST-"].update(folder_list)
