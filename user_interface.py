@@ -1,23 +1,77 @@
-import multiprocessing
-from time import sleep
-
-import PySimpleGUI as sg
-import os.path
-
-import schedule
+import socket, tqdm, os, zipfile, datetime, traceback, sys, os.path, PySimpleGUI as sg, schedule
 from multiprocessing import Process, Queue
-from folder_copy import syncNow
 
 def syncServer(q):
-    q = q
     sync_state = True
     print("sync activated")
-    schedule.every(5).seconds.do(printTime, q=q) #Needs callable arg
+    sync(q)
+    schedule.every(10).seconds.do(sync, q=q) #Needs callable function name, no ()
     while sync_state:
         schedule.run_pending()
 
-def printTime(q):
-    print(q)
+def sync(q):
+    SEPARATOR = "<SEPARATOR>"
+    BUFFER_SIZE = 4096 #Send 4096 bytes each time
+
+    try:
+
+        folder_list = []
+
+        while not q.empty():
+            folder_list.append(q.get())
+
+        updateQueue(q, folder_list)
+
+        print(folder_list)
+
+        if folder_list:
+
+            host = socket.gethostname()
+
+            port = 1234
+
+            s = socket.socket()
+
+            print(f"[+] Connecting to {host}:{port}")
+            s.connect((host, port))
+            print("[+] Connected.")
+
+
+            ct = datetime.datetime.now()
+            formatted_ct = ct.strftime("%Y-%m-%d %H-%M-%S.%f")
+            filename = f"archive {formatted_ct}.zip"
+
+            with zipfile.ZipFile(filename, 'w') as f:
+                for file in folder_list:
+                    f.write(file)
+            filesize = os.path.getsize(filename)
+            s.send(f"{filename}{SEPARATOR}{filesize}".encode())
+            progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+            with open(filename, "rb") as f:
+                while True:
+                    # read the bytes from the file
+                    bytes_read = f.read(BUFFER_SIZE)
+                    if not bytes_read:
+                        # file transmitting is done
+                        break
+                    # we use sendall to assure transimission in
+                    # busy networks
+                    s.sendall(bytes_read)
+                    # update the progress bar
+                    progress.update(len(bytes_read))
+            # close the socket
+            s.close()
+
+            os.remove(filename)
+    except:
+        traceback.print_exc()
+        sys.exit(1)
+
+def updateQueue(q, folder_list):
+    while not q.empty():
+        q.get()
+    for folder in folder_list:
+        q.put(folder)
 
 #On doit avoir une fonction main à cause du Threading qui fait qu'on peut pas call soi-même
 def main(q):
@@ -78,6 +132,7 @@ def main(q):
             if folder not in folder_list and os.path.isdir(folder):
                 folder_list.append(folder)
             window["-FOLDER LIST-"].update(folder_list)
+            updateQueue(q, folder_list)
         elif event == "-FOLDER LIST-":
             try:
                 selected_folder = values["-FOLDER LIST-"][0]
@@ -85,13 +140,16 @@ def main(q):
                 pass
         elif event == "-STOP SYNC-":
             print("Stop Sync!")
-            sync_state = False
+            if (isinstance(sync_thread, Process)):
+                sync_thread.terminate()
             #sg.popup("Hello!")
             #sg.popup_ok("OK?")
             #sg.popup_menu("MENU")
         elif event == "-SYNC NOW-":
             print("Sync now!")
-            q = folder_list
+            updateQueue(q, folder_list)
+            if (isinstance(sync_thread, Process)):
+                sync_thread.terminate()
             sync_thread = Process(target=syncServer, args=(q,)) #If you use start fct on the same statement, sync_thread won't be instance of Process. Why?
             sync_thread.start()
         elif event == "-REMOVE FOLDER-":
@@ -99,6 +157,7 @@ def main(q):
             try:
                 folder_list.remove(selected_folder)
                 window["-FOLDER LIST-"].update(folder_list)
+                updateQueue(q, folder_list)
             except:
                 pass
         else:
@@ -110,4 +169,3 @@ if __name__ == '__main__':
     q.put(None)
     main_thread = Process(target=main, args=(q,))
     main_thread.start()
-    print(isinstance(main_thread, Process))
