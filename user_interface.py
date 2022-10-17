@@ -3,21 +3,54 @@ from time import sleep
 
 import PySimpleGUI as sg
 import os.path
+import socket, tqdm, os
 
 import schedule
 from multiprocessing import Process, Queue
 from folder_copy import syncNow
 
 def syncServer(q):
-    q = q
     sync_state = True
     print("sync activated")
-    schedule.every(5).seconds.do(printTime, q=q) #Needs callable arg
+    schedule.every(5).seconds.do(sync, q=q) #Needs callable function name, no ()
     while sync_state:
         schedule.run_pending()
 
-def printTime(q):
-    print(q)
+def sync(q):
+
+    SEPARATOR = "<SEPARATOR>"
+    BUFFER_SIZE = 4096 #Send 4096 bytes each time
+
+    host = socket.gethostname()
+
+    port = 1234
+
+    s = socket.socket()
+
+    print(f"[+] Connecting to {host}:{port}")
+    s.connect((host, port))
+    print("[+] Connected.")
+    q = ["C:\\Users\\Elie\\Documents\\Projet\\GitHub-Docker\\bidonDir\\bidonSubdir1\\testfile1.txt", "C:\\Users\\Elie\\Documents\\Projet\\GitHub-Docker\\bidonDir\\bidonSubdir1\\testfile2.txt"]
+    for file in q:
+        filename = file
+        filesize = os.path.getsize(filename)
+        print(f"{filename} + {filesize}")
+        s.send(f"{filename}{SEPARATOR}{filesize}".encode())
+        progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+        with open(filename, "rb") as f:
+            while True:
+                # read the bytes from the file
+                bytes_read = f.read(BUFFER_SIZE)
+                if not bytes_read:
+                    # file transmitting is done
+                    break
+                # we use sendall to assure transimission in
+                # busy networks
+                s.sendall(bytes_read)
+                # update the progress bar
+                progress.update(len(bytes_read))
+    # close the socket
+    s.close()
 
 #On doit avoir une fonction main à cause du Threading qui fait qu'on peut pas call soi-même
 def main(q):
