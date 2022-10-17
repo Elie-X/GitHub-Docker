@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 
 import socket, tqdm, os
-<<<<<<< HEAD
 SERVER_HOST = "0.0.0.0"
-=======
-SERVER_HOST = socket.gethostname()
->>>>>>> aaaedc1aee4c482b4dd89572bf953f9134bb8334
 SERVER_PORT = 1234
 BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
