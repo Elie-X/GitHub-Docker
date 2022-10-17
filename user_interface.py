@@ -39,15 +39,18 @@ def sync(q):
 
             ct = datetime.datetime.now()
             formatted_ct = ct.strftime("%Y-%m-%d %H-%M-%S.%f")
-            filename = f"archive {formatted_ct}.zip"
+            archive_filename = f"archive {formatted_ct}.zip"
 
-            with zipfile.ZipFile(filename, 'w') as f:
-                for file in folder_list:
-                    f.write(file)
-            filesize = os.path.getsize(filename)
-            s.send(f"{filename}{SEPARATOR}{filesize}".encode())
-            progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-            with open(filename, "rb") as f:
+            with zipfile.ZipFile(archive_filename, 'w') as f:
+                for folder in folder_list:
+                    for folderName, subfolders, filenames in os.walk(folder):
+                        for filename in filenames:
+                            filePath = os.path.join(folderName, filename)
+                            f.write(filePath)
+            filesize = os.path.getsize(archive_filename)
+            s.send(f"{archive_filename}{SEPARATOR}{filesize}".encode())
+            progress = tqdm.tqdm(range(filesize), f"Sending {archive_filename}", unit="B", unit_scale=True, unit_divisor=1024)
+            with open(archive_filename, "rb") as f:
                 while True:
                     # read the bytes from the file
                     bytes_read = f.read(BUFFER_SIZE)
@@ -62,7 +65,7 @@ def sync(q):
             # close the socket
             s.close()
 
-            os.remove(filename)
+            os.remove(archive_filename)
     except:
         traceback.print_exc()
         sys.exit(1)
